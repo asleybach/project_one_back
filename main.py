@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth.routes import auth_router
 from app.database.database import database, engine, Base
 from app.models import user  
+import subprocess
 
 app = FastAPI()
 
@@ -11,7 +12,6 @@ origins = [
     "http://localhost:3000",  # React o cualquier frontend local
     "http://127.0.0.1:3000",  # Otra posible configuración local
     "https://mi-dominio.com",  # Dominio de producción
-
 
     "http://localhost:8081",  # React nativate
 ]
@@ -26,6 +26,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
+    # Ejecutar migraciones automáticamente
+    subprocess.run(["alembic", "upgrade", "head"])
     # Conectar a la base de datos
     await database.connect()
     # Crear las tablas definidas en los modelos
