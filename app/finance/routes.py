@@ -6,6 +6,8 @@ from app.models.user import User
 from app.schemas.income import IncomeCreateRequest, IncomeResponse
 from app.auth.jwt_handler import decode_access_token
 from fastapi.security import OAuth2PasswordBearer
+from app.models.expense import Expense
+from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse
 
 finance_router = APIRouter()
 
@@ -54,3 +56,24 @@ def create_income(
     db.refresh(new_income)
 
     return new_income
+
+@finance_router.post("/expense", response_model=ExpenseResponse)
+def create_expense(
+    request: ExpenseCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Crear un nuevo gasto
+    new_expense = Expense(
+        user_id=current_user.id,
+        amount=request.amount,
+        payment_method=request.payment_method,
+        category=request.category,
+        description=request.description,
+        date=request.date,
+    )
+    db.add(new_expense)
+    db.commit()
+    db.refresh(new_expense)
+
+    return new_expense
