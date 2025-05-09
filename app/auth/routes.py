@@ -6,7 +6,7 @@ from app.models.user import User
 from app.database.database import SessionLocal
 import bcrypt
 
-auth_router = APIRouter()
+auth_router = APIRouter(tags=["Auth"])  # Agregar etiqueta "Auth"
 
 # Dependencia para obtener la sesión de la base de datos
 def get_db():
