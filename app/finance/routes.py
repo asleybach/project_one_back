@@ -7,8 +7,9 @@ from app.schemas.income import IncomeCreateRequest, IncomeResponse
 from app.auth.jwt_handler import decode_access_token
 from fastapi.security import OAuth2PasswordBearer
 from app.models.expense import Expense
-from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse
+from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse
 from sqlalchemy import func
+from typing import List, Dict
 
 finance_router = APIRouter(tags=["Finance"])  # Agregar etiqueta "Finance"
 
@@ -240,3 +241,16 @@ def get_balance(
         "balance": balance,
         "filters": {"day": day, "month": month, "year": year}
     }
+
+@finance_router.get("/expense/by-category", response_model=List[ExpenseByCategoryResponse])
+def get_expense_by_category(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    results = (
+        db.query(Expense.category, func.sum(Expense.amount).label("total"))
+        .filter(Expense.user_id == current_user.id)
+        .group_by(Expense.category)
+        .all()
+    )
+    return [{"category": category, "total": float(total)} for category, total in results]

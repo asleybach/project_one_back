@@ -20,3 +20,7 @@ class ExpenseResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ExpenseByCategoryResponse(BaseModel):
+    category: str
+    total: float
