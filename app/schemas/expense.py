@@ -19,7 +19,7 @@ class ExpenseResponse(BaseModel):
     month: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ExpenseByCategoryResponse(BaseModel):
     category: str
