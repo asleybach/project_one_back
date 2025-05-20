@@ -24,3 +24,15 @@ class ExpenseResponse(BaseModel):
 class ExpenseByCategoryResponse(BaseModel):
     category: str
     total: float
+
+
+class ExpenseListItemResponse(BaseModel):
+    id: int
+    amount: float
+    category: str
+    date: datetime
+    description: str | None
+    payment_method: str
+
+    class Config:
+        from_attributes = True
