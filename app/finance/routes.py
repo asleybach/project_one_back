@@ -60,13 +60,20 @@ def create_income(
 
     return new_income
 
-# Obtener todos los ingresos del usuario actual
+# Obtener todos los ingresos del usuario actual en un periodo definido
 @finance_router.get("/income", response_model=list[IncomeResponse])
 def get_all_incomes(
+    start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),
+    end_date: datetime = Query(None, description="Fecha de fin (inclusive)"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    incomes = db.query(Income).filter(Income.user_id == current_user.id).all()
+    query = db.query(Income).filter(Income.user_id == current_user.id)
+    if start_date:
+        query = query.filter(Income.date >= start_date)
+    if end_date:
+        query = query.filter(Income.date <= end_date)
+    incomes = query.order_by(Income.date.desc()).all()
     return incomes
 
 # Actualizar un ingreso existente (PUT)
