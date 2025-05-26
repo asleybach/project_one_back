@@ -7,7 +7,7 @@ from app.schemas.income import IncomeCreateRequest, IncomeResponse
 from app.auth.jwt_handler import decode_access_token
 from fastapi.security import OAuth2PasswordBearer
 from app.models.expense import Expense
-from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse, ExpenseListItemResponse
+from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse, ExpenseListItemResponse, PaginatedExpenseResponse
 from sqlalchemy import func
 from typing import List, Dict
 from datetime import datetime
@@ -280,3 +280,52 @@ def get_expense_list(
         query = query.filter(Expense.date <= end_date)
     expenses = query.order_by(Expense.date.desc()).all()
     return expenses
+
+from app.schemas.expense import PaginatedExpenseResponse
+from app.schemas.income import PaginatedIncomeResponse
+
+@finance_router.get("/expense/paginated_details", response_model=PaginatedExpenseResponse)
+def get_all_expenses(
+    start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),
+    end_date: datetime = Query(None, description="Fecha de fin (inclusive)"),
+    limit: int = Query(10, ge=1, le=100, description="Cantidad máxima de resultados por página"),
+    offset: int = Query(0, ge=0, description="Número de registros a omitir"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Expense).filter(Expense.user_id == current_user.id)
+    if start_date:
+        query = query.filter(Expense.date >= start_date)
+    if end_date:
+        query = query.filter(Expense.date <= end_date)
+    total = query.count()
+    expenses = query.order_by(Expense.date.desc()).offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": expenses
+    }
+
+@finance_router.get("/income/paginated_details", response_model=PaginatedIncomeResponse)
+def get_all_incomes(
+    start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),
+    end_date: datetime = Query(None, description="Fecha de fin (inclusive)"),
+    limit: int = Query(10, ge=1, le=100, description="Cantidad máxima de resultados por página"),
+    offset: int = Query(0, ge=0, description="Número de registros a omitir"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Income).filter(Income.user_id == current_user.id)
+    if start_date:
+        query = query.filter(Income.date >= start_date)
+    if end_date:
+        query = query.filter(Income.date <= end_date)
+    total = query.count()
+    incomes = query.order_by(Income.date.desc()).offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": incomes
+    }

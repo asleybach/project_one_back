@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import List
 
 class ExpenseCreateRequest(BaseModel):
     amount: float
@@ -33,6 +34,15 @@ class ExpenseListItemResponse(BaseModel):
     date: datetime
     description: str | None
     payment_method: str
+
+    class Config:
+        from_attributes = True
+
+class PaginatedExpenseResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[ExpenseResponse]
 
     class Config:
         from_attributes = True

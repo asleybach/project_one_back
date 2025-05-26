@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import List
 
 class IncomeCreateRequest(BaseModel):
     source: str
@@ -17,4 +18,13 @@ class IncomeResponse(BaseModel):
     month: str
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
+class PaginatedIncomeResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[IncomeResponse]
+
+    class Config:
+        from_attributes = True
