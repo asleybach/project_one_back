@@ -4,7 +4,6 @@ from datetime import datetime
 class IncomeCreateRequest(BaseModel):
     source: str
     amount: float
-    category: str
     observations: str | None = None
     date: datetime
 
@@ -13,7 +12,6 @@ class IncomeResponse(BaseModel):
     user_id: int
     source: str
     amount: float
-    category: str
     observations: str | None
     date: datetime
     month: str

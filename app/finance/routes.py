@@ -12,12 +12,10 @@ from sqlalchemy import func
 from typing import List, Dict
 from datetime import datetime
 
-finance_router = APIRouter(tags=["Finance"])  # Agregar etiqueta "Finance"
-
-# Configuración para obtener el token de autorización
+finance_router = APIRouter(tags=["Finance"])  
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-# Dependencia para obtener la sesión de la base de datos
+
 def get_db():
     db = SessionLocal()
     try:
@@ -25,7 +23,6 @@ def get_db():
     finally:
         db.close()
 
-# Dependencia para validar el token y obtener el usuario
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = decode_access_token(token)
@@ -45,12 +42,10 @@ def create_income(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # Crear un nuevo ingreso
     new_income = Income(
         user_id=current_user.id,
         source=request.source,
         amount=request.amount,
-        category=request.category,
         observations=request.observations,
         date=request.date,
     )
@@ -60,7 +55,6 @@ def create_income(
 
     return new_income
 
-# Obtener todos los ingresos del usuario actual en un periodo definido
 @finance_router.get("/income", response_model=list[IncomeResponse])
 def get_all_incomes(
     start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),

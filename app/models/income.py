@@ -10,11 +10,10 @@ class Income(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  
     source = Column(String, nullable=False)  
     amount = Column(Float, nullable=False)  
-    category = Column(String, nullable=False)  
     observations = Column(String, nullable=True)  
     date = Column(DateTime, default=datetime.utcnow, nullable=False)  
-    month = Column(String, nullable=False)  # Campo almacenado en la base de datos
-
+    month = Column(String, nullable=False)  
+    
     user = relationship("User", back_populates="incomes")
     
     @property
