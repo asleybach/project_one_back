@@ -13,8 +13,7 @@ class Expense(Base):
     category = Column(String, nullable=False)  
     description = Column(String, nullable=True) 
     date = Column(DateTime, default=datetime.utcnow, nullable=False)  
-    month = Column(String, nullable=False)  # Campo almacenado en la base de datos
-
+    month = Column(String, nullable=False) 
     user = relationship("User", back_populates="expenses")  
 
     @property
@@ -22,7 +21,6 @@ class Expense(Base):
         """Propiedad computada para obtener el mes basado en la fecha."""
         return self.date.strftime("%B")
 
-# Evento para calcular y asignar el valor de 'month' antes de insertar o actualizar
 @event.listens_for(Expense, "before_insert")
 @event.listens_for(Expense, "before_update")
 def set_month(mapper, connection, target):

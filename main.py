@@ -8,36 +8,30 @@ from app.finance.routes import finance_router
 
 app = FastAPI()
 
-# Configuración de CORS
 origins = [
-    "http://localhost:3000",  # React o cualquier frontend local
-    "http://127.0.0.1:3000",  # Otra posible configuración local
-    "https://mi-dominio.com",  # Dominio de producción
-
-    "http://localhost:8081",  # React nativate
+    "http://localhost:3000",  
+    "http://127.0.0.1:3000",  
+    "https://mi-dominio.com",  
+    "http://localhost:8081",  
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Permitir estos orígenes
-    allow_credentials=True,  # Permitir el envío de cookies o credenciales
-    allow_methods=["*"],  # Permitir todos los métodos HTTP (GET, POST, etc.)
-    allow_headers=["*"],  # Permitir todos los encabezados
+    allow_origins=origins,  
+    allow_credentials=True,  
+    allow_methods=["*"], 
+    allow_headers=["*"],  
 )
 
 @app.on_event("startup")
 async def startup():
-    # Ejecutar migraciones automáticamente
     subprocess.run(["alembic", "upgrade", "head"])
-    # Conectar a la base de datos
     await database.connect()
-    # Crear las tablas definidas en los modelos
     Base.metadata.create_all(bind=engine)
 
 @app.on_event("shutdown")
 async def shutdown():
-    # Desconectar de la base de datos
-    await database.disconnect()
+   await database.disconnect()
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(finance_router, prefix="/finance")

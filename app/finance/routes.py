@@ -70,7 +70,6 @@ def get_all_incomes(
     incomes = query.order_by(Income.date.desc()).all()
     return incomes
 
-# Actualizar un ingreso existente (PUT)
 @finance_router.put("/income/{income_id}", response_model=IncomeResponse)
 def update_income(
     income_id: int,
@@ -91,7 +90,6 @@ def update_income(
     db.refresh(income)
     return income
 
-# Eliminar un ingreso existente (DELETE)
 @finance_router.delete("/income/{income_id}")
 def delete_income(
     income_id: int,
@@ -106,7 +104,6 @@ def delete_income(
     db.commit()
     return {"detail": "Income deleted successfully"}
 
-# Actualizar parcialmente un ingreso existente (PATCH)
 @finance_router.patch("/income/{income_id}", response_model=IncomeResponse)
 def patch_income(
     income_id: int,
@@ -132,7 +129,6 @@ def create_expense(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # Crear un nuevo gasto
     new_expense = Expense(
         user_id=current_user.id,
         amount=request.amount,
@@ -147,7 +143,6 @@ def create_expense(
 
     return new_expense
 
-# Obtener todos los gastos del usuario actual
 @finance_router.get("/expense", response_model=list[ExpenseResponse])
 def get_all_expenses(
     current_user: User = Depends(get_current_user),
@@ -156,7 +151,6 @@ def get_all_expenses(
     expenses = db.query(Expense).filter(Expense.user_id == current_user.id).all()
     return expenses
 
-# Actualizar un gasto existente (PUT)
 @finance_router.put("/expense/{expense_id}", response_model=ExpenseResponse)
 def update_expense(
     expense_id: int,
@@ -177,7 +171,6 @@ def update_expense(
     db.refresh(expense)
     return expense
 
-# Eliminar un gasto existente (DELETE)
 @finance_router.delete("/expense/{expense_id}")
 def delete_expense(
     expense_id: int,
@@ -192,7 +185,6 @@ def delete_expense(
     db.commit()
     return {"detail": "Expense deleted successfully"}
 
-# Actualizar parcialmente un gasto existente (PATCH)
 @finance_router.patch("/expense/{expense_id}", response_model=ExpenseResponse)
 def patch_expense(
     expense_id: int,
@@ -225,7 +217,6 @@ def get_balance(
     filters = [Income.user_id == current_user.id]
     expense_filters = [Expense.user_id == current_user.id]
 
-    # Si se pasan fechas, se usan como prioridad
     if start_date:
         filters.append(Income.date >= start_date)
         expense_filters.append(Expense.date >= start_date)
@@ -233,7 +224,6 @@ def get_balance(
         filters.append(Income.date <= end_date)
         expense_filters.append(Expense.date <= end_date)
 
-    # Si no se pasan fechas, se usan los filtros por día, mes, año
     if not start_date and not end_date:
         if year is not None:
             filters.append(func.extract('year', Income.date) == year)

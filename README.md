@@ -32,8 +32,8 @@
 2. **Crea un entorno virtual** (opcional):
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # Linux/Mac
-   .venv\Scripts\activate     # Windows
+   source .venv/bin/activate  
+   .venv\Scripts\activate    
    ```
 
 3. **Instala las dependencias**:
@@ -93,11 +93,32 @@
 
 ---
 
-## Notas adicionales
+## Migraciones de Base de Datos
 
-- Asegúrate de que PostgreSQL esté en ejecución y configurado correctamente.
-- Si encuentras problemas con las dependencias, verifica que las versiones de las librerías sean compatibles con tu entorno.
-- Este proyecto utiliza Alembic para manejar las migraciones de la base de datos. Las migraciones se ejecutan automáticamente al iniciar el servidor.
+Este proyecto utiliza **Alembic** para gestionar las migraciones de la base de datos.  
+**Importante:**  
+> Los cambios realizados en los modelos de SQLAlchemy (por ejemplo, agregar o eliminar columnas) **no se aplican automáticamente** en la base de datos.  
+> Es necesario crear y aplicar migraciones manualmente para reflejar estos cambios en la estructura de la base de datos.
+
+### ¿Cómo crear y aplicar una migración?
+
+1. **Realiza los cambios en tus modelos** (por ejemplo, en `models/income.py`).
+2. **Genera una nueva migración Alembic** ejecutando:
+   ```bash
+   alembic revision --autogenerate -m "Describe tu cambio"
+   ```
+   Esto creará un nuevo archivo de migración en la carpeta `alembic/versions/`.
+3. **Aplica la migración**:
+   ```bash
+   alembic upgrade head
+   ```
+   Si tu aplicación ejecuta `alembic upgrade head` al iniciar, la migración se aplicará automáticamente en el próximo arranque.
+
+### Notas
+
+- Si solo modificas los modelos y no generas/aplicas la migración, los cambios **no se verán reflejados** en la base de datos.
+- Puedes revisar la carpeta `alembic/versions/` para ver el historial de migraciones aplicadas.
+- Consulta la [documentación oficial de Alembic](https://alembic.sqlalchemy.org/en/latest/) para más detalles y buenas prácticas.
 
 ---
 

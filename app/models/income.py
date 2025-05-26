@@ -21,7 +21,6 @@ class Income(Base):
         """Propiedad computada para obtener el mes basado en la fecha."""
         return self.date.strftime("%B")
 
-# Evento para calcular y asignar el valor de 'month' antes de insertar o actualizar
 @event.listens_for(Income, "before_insert")
 @event.listens_for(Income, "before_update")
 def set_month(mapper, connection, target):
