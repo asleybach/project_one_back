@@ -12,6 +12,7 @@ from sqlalchemy import func
 from typing import List, Dict
 from datetime import datetime
 import calendar
+from calendar import month_name
 
 finance_router = APIRouter(tags=["Finance"])  
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -529,4 +530,57 @@ def get_analytics(
         "expensesPareto": expenses_pareto,
         "expensesDistribution": expenses_distribution,
         "pivotTable": pivot_table
+    }
+
+@finance_router.get("/kpi/monthly", tags=["Finance"])
+def get_monthly_kpis(
+    year: int = Query(None, description="Año a consultar"),
+    month: int = Query(None, ge=1, le=12, description="Mes a consultar (1=Enero, 12=Diciembre)"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    selected_year = year if year else datetime.now().year
+    selected_month = month if month else datetime.now().month
+
+    income_query = db.query(Income).filter(
+        Income.user_id == current_user.id,
+        func.extract('year', Income.date) == selected_year,
+        func.extract('month', Income.date) == selected_month
+    )
+    
+    expense_query = db.query(Expense).filter(
+        Expense.user_id == current_user.id,
+        func.extract('year', Expense.date) == selected_year,
+        func.extract('month', Expense.date) == selected_month
+    )
+    
+    total_income = income_query.with_entities(func.coalesce(func.sum(Income.amount), 0)).scalar()
+    total_expense = expense_query.with_entities(func.coalesce(func.sum(Expense.amount), 0)).scalar()
+    monthly_balance = total_income - total_expense
+    savings = monthly_balance
+    savings_percent = round((savings / total_income * 100), 2) if total_income else 0
+
+    # Expenses by category para el mes filtrado
+    expenses_by_category = [
+        {"category": c, "total": float(t)}
+        for c, t in db.query(Expense.category, func.sum(Expense.amount))
+            .filter(
+                Expense.user_id == current_user.id,
+                func.extract('year', Expense.date) == selected_year,
+                func.extract('month', Expense.date) == selected_month
+            )
+            .group_by(Expense.category)
+            .all()
+    ]
+
+    return {
+        "year": selected_year,
+        "month": selected_month,
+        "monthName": f"{month_name[selected_month]} {selected_year}",
+        "monthlyBalance": monthly_balance,
+        "totalIncome": total_income,
+        "totalExpense": total_expense,
+        "savings": savings,
+        "savingsPercent": savings_percent,
+        "expensesByCategory": expenses_by_category
     }
