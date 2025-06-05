@@ -17,35 +17,36 @@ def get_db():
 
 @auth_router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):
-    
     user = db.query(User).filter(User.email == request.email).first()
     if not user or not bcrypt.checkpw(request.password.encode('utf-8'), user.password.encode('utf-8')):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    
-    access_token = create_access_token({"sub": user.email})
-    
+    access_token = create_access_token({"sub": user.email, "is_admin": user.is_admin})
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
-        username=user.username
+        username=user.username,
+        is_admin=user.is_admin
     )
 
 @auth_router.post("/register", response_model=TokenResponse)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
-    
     user = db.query(User).filter((User.username == request.username) | (User.email == request.email)).first()
     if user:
         raise HTTPException(status_code=400, detail="Username or email already exists")    
-    
     hashed_password = bcrypt.hashpw(request.password.encode('utf-8'), bcrypt.gensalt())    
-    new_user = User(username=request.username, email=request.email, password=hashed_password.decode('utf-8'))
+    new_user = User(
+        username=request.username,
+        email=request.email,
+        password=hashed_password.decode('utf-8'),
+        is_admin=False
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)    
     access_token = create_access_token({"sub": new_user.email})
-    
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
-        username=new_user.username
+        username=new_user.username,
+        is_admin=new_user.is_admin
     )
