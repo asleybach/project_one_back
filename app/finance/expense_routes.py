@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.expense import Expense
 from app.models.user import User
-from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse
+from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse, ExpenseListItemResponse
 from app.utils.dependencies import get_db, get_current_user
+from typing import List
 
 expense_router = APIRouter()
 

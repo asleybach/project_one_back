@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.income import Income
 from app.models.user import User
-from app.schemas.income import IncomeCreateRequest, IncomeResponse
+from app.schemas.income import IncomeCreateRequest, IncomeResponse, PaginatedIncomeResponse
 from app.utils.dependencies import get_db, get_current_user
+from typing import List
 
 income_router = APIRouter()
 
@@ -26,7 +27,7 @@ def create_income(
     db.refresh(new_income)
     return new_income
 
-@income_router.get("/income", response_model=list[IncomeResponse])
+@income_router.get("/income", response_model=List[IncomeResponse])
 def get_all_incomes(
     start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),
     end_date: datetime = Query(None, description="Fecha de fin (inclusive)"),

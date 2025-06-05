@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime
 from app.models.expense import Expense
+from app.models.income import Income
 from app.models.user import User
 from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse
 from app.schemas.income import IncomeCreateRequest, IncomeResponse
