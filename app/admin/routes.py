@@ -5,6 +5,7 @@ from app.models.income import Income
 from app.models.expense import Expense
 from app.schemas.user import UserCreateRequest, UserResponse
 from app.utils.dependencies import get_db, get_current_user
+from typing import List, Optional
 
 admin_router = APIRouter(tags=["Admin"])
 
@@ -16,12 +17,23 @@ def get_current_admin_user(current_user: User = Depends(get_current_user)):
         )
     return current_user
 
-@admin_router.get("/admin/users", response_model=list[UserResponse])
+@admin_router.get("/admin/users", response_model=List[UserResponse])
 def get_all_users(
+    is_active: Optional[bool] = None,
     db: Session = Depends(get_db),
     admin_user: User = Depends(get_current_admin_user)
 ):
-    return db.query(User).all()
+    """
+    Ejemplo de consumo desde el frontend:
+
+    Todos: /admin/users
+    Solo activos: /admin/users?is_active=true
+    Solo inactivos: /admin/users?is_active=false
+    """
+    query = db.query(User)
+    if is_active is not None:
+        query = query.filter(User.is_active == is_active)
+    return query.all()
 
 @admin_router.post("/admin/users", response_model=UserResponse)
 def create_user(
