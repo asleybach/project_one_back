@@ -5,6 +5,7 @@ from app.database.database import database, engine, Base
 from app.models import user  
 import subprocess
 from app.finance.routes import finance_router
+from app.admin.routes import admin_router
 
 app = FastAPI()
 
@@ -35,3 +36,4 @@ async def shutdown():
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(finance_router, prefix="/finance")
+app.include_router(admin_router)

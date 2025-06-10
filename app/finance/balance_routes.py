@@ -42,8 +42,14 @@ def get_balance(
             filters.append(func.extract('day', Income.date) == day)
             expense_filters.append(func.extract('day', Expense.date) == day)
 
-    total_income = db.query(func.coalesce(func.sum(Income.amount), 0)).filter(*filters).scalar()
-    total_expense = db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(*expense_filters).scalar()
+    total_income = db.query(func.coalesce(func.sum(Income.amount), 0)).filter(
+        Income.user_id == current_user.id,
+        Income.is_active == True
+    ).scalar()
+    total_expense = db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
+        Expense.user_id == current_user.id,
+        Expense.is_active == True
+    ).scalar()
     balance = total_income - total_expense
 
     return {

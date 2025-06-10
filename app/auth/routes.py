@@ -4,20 +4,14 @@ from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
 from app.auth.jwt_handler import create_access_token
 from app.models.user import User
 from app.database.database import SessionLocal
+from app.utils.dependencies import get_db
 import bcrypt
 
 auth_router = APIRouter(tags=["Auth"])  
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @auth_router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == request.email).first()
+    user = db.query(User).filter(User.email == request.email, User.is_active == True).first()
     if not user or not bcrypt.checkpw(request.password.encode('utf-8'), user.password.encode('utf-8')):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     access_token = create_access_token({"sub": user.email, "is_admin": user.is_admin})
@@ -38,7 +32,8 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         username=request.username,
         email=request.email,
         password=hashed_password.decode('utf-8'),
-        is_admin=False
+        is_admin=False,
+        is_active=True
     )
     db.add(new_user)
     db.commit()

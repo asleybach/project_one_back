@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime
 from app.models.expense import Expense
 from app.models.user import User
@@ -35,7 +36,7 @@ def get_all_expenses(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Expense).filter(Expense.user_id == current_user.id)
+    query = db.query(Expense).filter(Expense.user_id == current_user.id, Expense.is_active == True)
     if start_date:
         query = query.filter(Expense.date >= start_date)
     if end_date:
@@ -103,7 +104,7 @@ def get_expense_by_category(
 ):
     results = (
         db.query(Expense.category, func.sum(Expense.amount).label("total"))
-        .filter(Expense.user_id == current_user.id)
+        .filter(Expense.user_id == current_user.id, Expense.is_active == True)
         .group_by(Expense.category)
         .all()
     )
@@ -117,7 +118,7 @@ def get_expense_list(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Expense).filter(Expense.user_id == current_user.id)
+    query = db.query(Expense).filter(Expense.user_id == current_user.id, Expense.is_active == True)
     if start_date:
         query = query.filter(Expense.date >= start_date)
     if end_date:
@@ -137,7 +138,7 @@ def get_all_expenses(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Expense).filter(Expense.user_id == current_user.id)
+    query = db.query(Expense).filter(Expense.user_id == current_user.id, Expense.is_active == True)
     if start_date:
         query = query.filter(Expense.date >= start_date)
     if end_date:

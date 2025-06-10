@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.income import Income
@@ -34,7 +34,10 @@ def get_all_incomes(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Income).filter(Income.user_id == current_user.id)
+    query = db.query(Income).filter(
+        Income.user_id == current_user.id,
+        Income.is_active == True
+    )
     if start_date:
         query = query.filter(Income.date >= start_date)
     if end_date:
@@ -103,7 +106,10 @@ def get_all_incomes(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Income).filter(Income.user_id == current_user.id)
+    query = db.query(Income).filter(
+        Income.user_id == current_user.id,
+        Income.is_active == True
+    )
     if start_date:
         query = query.filter(Income.date >= start_date)
     if end_date:

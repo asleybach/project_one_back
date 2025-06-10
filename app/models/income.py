@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, event
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, event, Boolean
 from sqlalchemy.orm import relationship
 from app.database.database import Base
 
@@ -13,7 +13,8 @@ class Income(Base):
     observations = Column(String, nullable=True)  
     date = Column(DateTime, default=datetime.utcnow, nullable=False)  
     month = Column(String, nullable=False)  
-    
+    is_active = Column(Boolean, default=True)
+
     user = relationship("User", back_populates="incomes")
     
     @property
