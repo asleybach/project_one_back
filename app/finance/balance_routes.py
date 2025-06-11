@@ -44,11 +44,9 @@ def get_balance(
 
     total_income = db.query(func.coalesce(func.sum(Income.amount), 0)).filter(
         Income.user_id == current_user.id,
-        Income.is_active == True
     ).scalar()
     total_expense = db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
         Expense.user_id == current_user.id,
-        Expense.is_active == True
     ).scalar()
     balance = total_income - total_expense
 

@@ -35,8 +35,7 @@ def get_all_incomes(
     db: Session = Depends(get_db),
 ):
     query = db.query(Income).filter(
-        Income.user_id == current_user.id,
-        Income.is_active == True
+        Income.user_id == current_user.id
     )
     if start_date:
         query = query.filter(Income.date >= start_date)
@@ -107,8 +106,7 @@ def get_all_incomes(
     db: Session = Depends(get_db),
 ):
     query = db.query(Income).filter(
-        Income.user_id == current_user.id,
-        Income.is_active == True
+        Income.user_id == current_user.id
     )
     if start_date:
         query = query.filter(Income.date >= start_date)

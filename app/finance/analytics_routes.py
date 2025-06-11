@@ -25,8 +25,7 @@ def get_analytics(
         Income.is_active == True
     )
     expense_query = db.query(Expense).filter(
-        Expense.user_id == current_user.id,
-        Expense.is_active == True
+        Expense.user_id == current_user.id
     )
     
     if year:
@@ -229,14 +228,12 @@ def get_monthly_kpis(
 
     income_query = db.query(Income).filter(
         Income.user_id == current_user.id,
-        Income.is_active == True,
         func.extract('year', Income.date) == selected_year,
         func.extract('month', Income.date) == selected_month
     )
     
     expense_query = db.query(Expense).filter(
         Expense.user_id == current_user.id,
-        Expense.is_active == True,
         func.extract('year', Expense.date) == selected_year,
         func.extract('month', Expense.date) == selected_month
     )
@@ -253,7 +250,6 @@ def get_monthly_kpis(
         for c, t in db.query(Expense.category, func.sum(Expense.amount))
             .filter(
                 Expense.user_id == current_user.id,
-                Expense.is_active == True,
                 func.extract('year', Expense.date) == selected_year,
                 func.extract('month', Expense.date) == selected_month
             )

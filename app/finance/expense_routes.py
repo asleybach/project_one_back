@@ -4,9 +4,10 @@ from sqlalchemy import func
 from datetime import datetime
 from app.models.expense import Expense
 from app.models.user import User
-from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse, ExpenseListItemResponse
+from app.schemas.expense import ExpenseCreateRequest, ExpenseResponse, ExpenseByCategoryResponse, ExpenseListItemResponse, PaginatedExpenseResponse
 from app.utils.dependencies import get_db, get_current_user
 from typing import List
+
 
 expense_router = APIRouter()
 
@@ -36,7 +37,7 @@ def get_all_expenses(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Expense).filter(Expense.user_id == current_user.id, Expense.is_active == True)
+    query = db.query(Expense).filter(Expense.user_id == current_user.id)
     if start_date:
         query = query.filter(Expense.date >= start_date)
     if end_date:
@@ -126,9 +127,6 @@ def get_expense_list(
     expenses = query.order_by(Expense.date.desc()).all()
     return expenses
 
-from app.schemas.expense import PaginatedExpenseResponse
-from app.schemas.income import PaginatedIncomeResponse
-
 @expense_router.get("/expense/paginated_details", response_model=PaginatedExpenseResponse)
 def get_all_expenses(
     start_date: datetime = Query(None, description="Fecha de inicio (inclusive)"),
@@ -138,7 +136,7 @@ def get_all_expenses(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Expense).filter(Expense.user_id == current_user.id, Expense.is_active == True)
+    query = db.query(Expense).filter(Expense.user_id == current_user.id)
     if start_date:
         query = query.filter(Expense.date >= start_date)
     if end_date:
