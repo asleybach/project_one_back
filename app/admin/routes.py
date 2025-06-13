@@ -6,6 +6,7 @@ from app.models.expense import Expense
 from app.schemas.user import UserCreateRequest, UserResponse
 from app.utils.dependencies import get_db, get_current_user
 from typing import List, Optional
+import bcrypt
 
 admin_router = APIRouter(tags=["Admin"])
 
@@ -41,7 +42,10 @@ def create_user(
     db: Session = Depends(get_db),
     admin_user: User = Depends(get_current_admin_user)
 ):
-    db_user = User(**user.dict())
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    user_data = user.dict()
+    user_data.pop("password")
+    db_user = User(**user_data, password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -73,8 +77,5 @@ def inactivate_user(
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     db_user.is_active = False
-    db.query(Income).filter(Income.user_id == user_id).update({"is_active": False})
-    db.query(Expense).filter(Expense.user_id == user_id).update({"is_active": False})
-
     db.commit()
     return {"detail": "Usuario y registros asociados inactivados correctamente"}
