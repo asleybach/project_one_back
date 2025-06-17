@@ -8,11 +8,13 @@ class UserCreateRequest(BaseModel):
     password: str
     is_admin: Optional[bool] = False
     is_active: Optional[bool] = True
+    
 
 class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+    last_login: datetime | None
     is_admin: bool
     is_active: bool
     created_at: datetime

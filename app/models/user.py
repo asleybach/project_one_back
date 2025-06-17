@@ -11,6 +11,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)  
     password = Column(String, nullable=False)
+    last_login = Column(DateTime, nullable=True)
     is_admin = Column(Boolean, default = False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
