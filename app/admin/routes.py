@@ -77,3 +77,16 @@ def inactivate_user(
     db_user.is_active = False
     db.commit()
     return {"detail": "Usuario y registros asociados inactivados correctamente"}
+
+@admin_router.put("/admin/users/{user_id}/activate")
+def activate_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(get_current_admin_user)
+):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    db_user.is_active = True
+    db.commit()
+    return {"detail": "Usuario reactivado correctamente"}
